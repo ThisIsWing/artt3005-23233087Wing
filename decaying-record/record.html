@@ -17,81 +17,223 @@
     }
   </script>
   <style>
-    /* Custom subtle animation for feedback when clicking archive */
+    /* 3D Flip Card Styles */
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+    .transform-style-3d {
+      transform-style: preserve-3d;
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+    .card-inner.is-flipped {
+      transform: rotateY(180deg);
+    }
     .btn-active:active {
       transform: scale(0.98);
+    }
+
+    /* 15s decay: text values only — labels, catalog number, and borders stay sharp */
+    .field-box {
+      min-height: 2rem;
+      overflow: hidden;
+    }
+    .field-value {
+      display: block;
+      filter: blur(0);
+      opacity: 1;
+      letter-spacing: 0;
+      transition:
+        filter 15s linear,
+        opacity 15s linear,
+        letter-spacing 15s linear;
+    }
+    .card-inner.is-flipped .field-value {
+      filter: blur(8px);
+      opacity: 0;
+      letter-spacing: 0.45em;
+    }
+    /* Last to go: stays readable until the final seconds, then fades */
+    .field-value-last {
+      transition:
+        filter 3s linear,
+        opacity 3s linear,
+        letter-spacing 3s linear;
+    }
+    .card-inner.is-flipped .field-value-last {
+      transition-delay: 12s;
     }
   </style>
 </head>
 <body class="bg-pale min-h-screen flex items-center justify-center p-4 font-sans antialiased text-slate-800">
 
-  <!-- Main Card Container: Approx 460px x 520px on desktop/standard views -->
-  <main class="w-full max-w-[460px] min-h-[520px] bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-2xl hover:shadow-slate-200/80">
-    
-    <!-- Top Content Group -->
-    <div class="flex flex-col gap-5">
-      <!-- Large Image Placeholder -->
-      <div class="w-full h-64 bg-slate-100 rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 group cursor-pointer hover:border-indigo-400 hover:bg-slate-50 transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 stroke-current transition-transform duration-300 group-hover:scale-110 group-hover:text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-        </svg>
-        <span class="mt-2 text-xs font-medium uppercase tracking-wider text-slate-400 group-hover:text-indigo-500">Image Placeholder</span>
+  <!-- Main Card Perspective Container -->
+  <main class="perspective-1000 w-full max-w-[460px] h-[520px]">
+    <!-- 3D Card Inner Container -->
+    <div id="cardInner" class="card-inner relative w-full h-full transition-transform duration-700 transform-style-3d">
+      
+      <!-- FRONT FACE -->
+      <div class="card-front absolute inset-0 bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 p-6 flex flex-col justify-between backface-hidden">
+        
+        <!-- Top Content Group -->
+        <div class="flex flex-col gap-5">
+          <img
+            id="frontImage"
+            alt=""
+            class="w-full h-64 object-cover rounded-xl bg-slate-100"
+          >
+
+          <div class="space-y-1.5 text-center sm:text-left">
+            <h1 id="frontTitle" class="text-2xl font-bold text-slate-900 tracking-tight"></h1>
+            <p id="frontPlace" class="text-sm font-normal text-slate-500 tracking-normal"></p>
+          </div>
+        </div>
+
+        <!-- Bottom Button -->
+        <div class="mt-6">
+          <button 
+            id="archiveBtn" 
+            onclick="handleArchive()"
+            class="btn-active w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 shadow-md shadow-slate-900/10 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 flex items-center justify-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+            </svg>
+            <span id="btnText">Archive this</span>
+          </button>
+        </div>
+
       </div>
 
-      <!-- Text Section -->
-      <div class="space-y-1.5 text-center sm:text-left">
-        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">
-          Project Record #8402
-        </h1>
-        <p class="text-sm font-normal text-slate-500 tracking-normal">
-          Last updated 2 hours ago by System Admin
-        </p>
+      <!-- BACK FACE: Archival Specimen Label Style -->
+      <div class="card-back absolute inset-0 bg-[#FAF9F5] rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-300 p-5 flex flex-col justify-between backface-hidden rotate-y-180 font-mono select-none">
+        
+        <!-- Archival Inner Border Box -->
+        <div class="h-full border border-slate-700/80 rounded-xl p-4 flex flex-col justify-between bg-white/70 shadow-sm">
+          
+          <!-- Catalog Number Header -->
+          <div class="border-b-2 border-slate-800 pb-2.5 flex justify-between items-start">
+            <div>
+              <span class="block text-[9px] uppercase tracking-widest text-slate-500 font-bold">Archival Record</span>
+              <p id="catalogId" class="text-xs font-bold text-slate-900 tracking-tight"></p>
+            </div>
+            <span class="text-[9px] px-1.5 py-0.5 border border-slate-800 text-slate-800 font-bold uppercase tracking-wider bg-slate-100">
+              ARCHIVED
+            </span>
+          </div>
+
+          <!-- Specimen Fields Grid -->
+          <div class="space-y-3 my-auto text-left">
+            <!-- Field 1: Title -->
+            <div>
+              <label class="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">
+                [ Title ]
+              </label>
+              <div class="field-box text-xs font-medium text-slate-900 leading-snug bg-slate-50 border border-slate-200 p-1.5 rounded">
+                <span id="fieldTitle" class="field-value"></span>
+              </div>
+            </div>
+
+            <!-- Field 2: Date and place -->
+            <div>
+              <label class="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">
+                [ Date and place ]
+              </label>
+              <div class="field-box text-xs text-slate-800 leading-snug bg-slate-50 border border-slate-200 p-1.5 rounded">
+                <span id="fieldDatePlace" class="field-value"></span>
+              </div>
+            </div>
+
+            <!-- Field 3: Recorded by -->
+            <div>
+              <label class="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">
+                [ Recorded by ]
+              </label>
+              <div class="field-box text-xs text-slate-800 leading-snug bg-slate-50 border border-slate-200 p-1.5 rounded">
+                <span id="fieldRecorder" class="field-value"></span>
+              </div>
+            </div>
+
+            <!-- Field 4: What was not captured -->
+            <div>
+              <label class="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">
+                [ What was not captured ]
+              </label>
+              <div class="field-box text-[11px] text-slate-600 italic leading-snug bg-slate-50 border border-slate-200 p-1.5 rounded">
+                <span id="fieldNotCaptured" class="field-value field-value-last"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Label Footer & Return Action -->
+          <div class="pt-2 border-t border-dashed border-slate-300 flex items-center justify-between text-[10px] text-slate-500">
+            <span id="fieldCertainty">CERTAINTY: —</span>
+            <button 
+              onclick="flipBack()"
+              class="hover:text-slate-900 font-bold underline flex items-center gap-1 transition-colors"
+            >
+              ← Return to front
+            </button>
+          </div>
+
+        </div>
+
       </div>
+
     </div>
-
-    <!-- Bottom Button -->
-    <div class="mt-6">
-      <button 
-        id="archiveBtn" 
-        onclick="handleArchive()"
-        class="btn-active w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 shadow-md shadow-slate-900/10 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 flex items-center justify-center gap-2"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-        </svg>
-        <span id="btnText">Archive this</span>
-      </button>
-
-      <!-- Custom Toast Message Notification -->
-      <div id="toast" class="hidden mt-3 text-center text-xs font-semibold text-emerald-600 bg-emerald-50 py-2 rounded-lg border border-emerald-100 transition-all">
-        Record successfully archived!
-      </div>
-    </div>
-
   </main>
 
   <script>
     function handleArchive() {
-      const btn = document.getElementById('archiveBtn');
-      const btnText = document.getElementById('btnText');
-      const toast = document.getElementById('toast');
-
-      // Update button state visually
-      btnText.textContent = 'Archived';
-      btn.classList.remove('bg-slate-900', 'hover:bg-slate-800');
-      btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
-      
-      // Display visual toast message without alerts
-      toast.classList.remove('hidden');
-
-      // Revert back after 3 seconds for demo purposes
-      setTimeout(() => {
-        btnText.textContent = 'Archive this';
-        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
-        btn.classList.add('bg-slate-900', 'hover:bg-slate-800');
-        toast.classList.add('hidden');
-      }, 3000);
+      const card = document.getElementById('cardInner');
+      card.classList.add('is-flipped');
     }
+
+    function flipBack() {
+      const card = document.getElementById('cardInner');
+      card.classList.remove('is-flipped');
+    }
+
+    function showLoadError() {
+      document.body.innerHTML =
+        '<p class="font-mono text-sm text-slate-800 p-8 max-w-xl">' +
+        'record.json did not load. Are you serving the folder?<br>' +
+        'Open http://localhost:8000' +
+        '</p>';
+    }
+
+    async function loadRecord() {
+      try {
+        const response = await fetch('record.json');
+        if (!response.ok) {
+          throw new Error('failed');
+        }
+        const record = await response.json();
+
+        const frontImage = document.getElementById('frontImage');
+        frontImage.src = record.image;
+        frontImage.alt = record.title;
+
+        document.getElementById('frontTitle').textContent = record.title;
+        document.getElementById('frontPlace').textContent = record.place;
+
+        document.getElementById('catalogId').textContent = 'CAT NO. ' + record.catalog_id;
+        document.getElementById('fieldTitle').textContent = record.title;
+        document.getElementById('fieldDatePlace').textContent = record.date + ' — ' + record.place;
+        document.getElementById('fieldRecorder').textContent = record.recorder;
+        document.getElementById('fieldNotCaptured').textContent = record.not_captured;
+        document.getElementById('fieldCertainty').textContent = 'CERTAINTY: ' + record.certainty;
+      } catch (error) {
+        showLoadError();
+      }
+    }
+
+    loadRecord();
   </script>
 </body>
 </html>
